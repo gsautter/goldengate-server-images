@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<web-app>
+	<servlet>
+		<servlet-name>GgServerImageProvider</servlet-name>
+		<servlet-class>de.uka.ipd.idaho.goldenGateServer.dis.client.GoldenGateDisServlet</servlet-class>
+		<init-param>
+			<param-name>dataPath</param-name>
+			<param-value>imagesData</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GgServerImageProvider</servlet-name>
+		<url-pattern>/images/*</url-pattern>
+	</servlet-mapping>
+</web-app>

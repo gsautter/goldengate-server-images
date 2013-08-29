@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+	Does all the packing. That is, creates the files that live in dist/
+-->
+
+<project name="dist">
+	<target name="zips" depends="backendimageszip,frontendzip,disviewerjar">
+	</target>
+	
+	<target name="backendimageszip" depends="disjar,disdiojar">
+		<delete file="${pack.serverimages}"/>
+		<zip destfile="${pack.serverimages}">
+			<fileset dir="${file.home}/server"/>
+			<fileset dir="${dist.home}" includes="Components/**/**" />
+			<fileset dir="." includes="LICENSE.txt"/>
+		</zip>
+	</target>
+	
+	<target name="disjar">
+		<delete file="${jar.dis}" />
+		<jar destfile="${jar.dis}" manifest="${file.home}/MANIFEST.components.MF">
+			<fileset dir="${build.home}/classes">
+				<include name="**/goldenGateServer/dis/*.class" />
+			</fileset>
+			<fileset dir="${src.home}">
+				<include name="**/goldenGateServer/dis/*.java" />
+			</fileset>
+			<fileset dir="." includes="LICENSE.txt"/>
+		</jar>
+	</target>
+	<target name="disdiojar">
+		<delete file="${jar.disdio}" />
+		<jar destfile="${jar.disdio}" manifest="${file.home}/MANIFEST.components.MF">
+			<fileset dir="${build.home}/classes">
+				<include name="**/goldenGateServer/dis/connectors/GoldenGateDisDioConnector*.class" />
+			</fileset>
+			<fileset dir="${src.home}">
+				<include name="**/goldenGateServer/dis/connectors/GoldenGateDisDioConnector.java" />
+			</fileset>
+			<fileset dir="." includes="LICENSE.txt"/>
+		</jar>
+	</target>
+	
+	
+	<target name="frontendzip" depends="diswebclientjar,srslnkimagesjar">
+		<delete file="${pack.webimages}" />
+		<zip destfile="${pack.webimages}">
+			<fileset dir="${file.home}/webapp" />
+			<fileset dir="${dist.home}" includes="**/WEB-INF/**" />
+			<fileset dir="." includes="LICENSE.txt"/>
+		</zip>
+	</target>
+	
+	<target name="diswebclientjar">
+		<delete file="${jar.diswebclient}" />
+		<jar destfile="${jar.diswebclient}" manifest="${file.home}/MANIFEST.components.MF">
+			<fileset dir="${build.home}/classes">
+				<include name="**/goldenGateServer/dis/GoldenGateDisConstants*.class" />
+				<include name="**/goldenGateServer/dis/client/GoldenGateDisClient*.class" />
+				<include name="**/goldenGateServer/dis/client/GoldenGateDisServlet*.class" />
+			</fileset>
+			<fileset dir="${src.home}">
+				<include name="**/goldenGateServer/dis/GoldenGateDisConstants*.java" />
+				<include name="**/goldenGateServer/dis/client/GoldenGateDisClient*.java" />
+				<include name="**/goldenGateServer/dis/client/GoldenGateDisServlet*.java" />
+			</fileset>
+			<fileset dir="." includes="LICENSE.txt"/>
+		</jar>
+	</target>
+	
+	<target name="srslnkimagesjar">
+		<delete file="${jar.dislinker}" />
+		<jar destfile="${jar.dislinker}" manifest="${file.home}/MANIFEST.components.MF">
+			<fileset dir="${build.home}/classes">
+				<include name="**/goldenGateServer/srs/webPortal/resultLinkers/FigureImageLinker*.class" />
+			</fileset>
+			<fileset dir="${src.home}">
+				<include name="**/goldenGateServer/srs/webPortal/resultLinkers/FigureImageLinker.java" />
+			</fileset>
+			<fileset dir="." includes="LICENSE.txt"/>
+		</jar>
+	</target>
+	
+	
+	<target name="check-gg" unless="gg.exists">
+		<available property="gg.exists" file="lib/GoldenGATE.jar"/>
+	</target>
+	<target name="disviewerjar" depends="check-gg" if="${gg.exists}">
+		<delete file="${jar.disviewer}" />
+		<jar destfile="${jar.disviewer}" manifest="${file.home}/MANIFEST.components.MF">
+			<fileset dir="${build.home}/classes">
+				<include name="**/goldenGateServer/dis/GoldenGateDioConstants*.class" />
+				<include name="**/goldenGateServer/dis/client/GoldenGateDisClient*.class" />
+				<include name="**/goldenGateServer/dis/client/PageImageViewer*.class" />
+			</fileset>
+			<fileset dir="${src.home}">
+				<include name="**/goldenGateServer/dis/GoldenGateDioConstants.java" />
+				<include name="**/goldenGateServer/dis/client/GoldenGateDisClient.java" />
+				<include name="**/goldenGateServer/dis/client/PageImageViewer.java" />
+			</fileset>
+			<fileset dir="." includes="LICENSE.txt"/>
+		</jar>
+	</target>
+</project>

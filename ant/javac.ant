@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+	Handles the compilation step itself. Especially the classpath is set up
+	here.
+-->
+
+<project name="javac">
+	
+	<!-- set up the classpath for compilation, this should always match the
+	     Eclipse configuration. -->
+	<path id="compile.classpath">
+		<!-- include all .jar in the lib/ directory -->
+	    <fileset dir="${lib.home}">
+	        <include name="*.jar" />
+	    </fileset>
+		<!-- include servlet API .jar -->
+	    <fileset dir="tomcatLib">
+	        <include name="*.jar" />
+	    </fileset>
+	</path>
+	
+	<!-- The task off all tasks -->
+	<target name="compile" depends="compileSvr,compileClt,compileWeb" description="Compile GoldenGATE Server Java sources">
+		<!-- only proxy for three compile tasks -->
+	</target>
+	
+	<!-- Compile backend server core and components -->
+	<target name="compileSvr" description="Compile GoldenGATE Server backend Java sources">
+		
+	    <!-- Compile Java classes as necessary -->
+	    <javac destdir="${build.home}/classes" includeantruntime="false" >
+	    	<src path="${src.home}" />
+    		<include name="**/goldenGateServer/dis/*.java" />
+    		<include name="**/goldenGateServer/dis/connectors/*.java" />
+	        <classpath refid="compile.classpath" />
+	    </javac>
+	</target>
+	
+	<!-- Compile GoldenGATE Editor client plugins if GoldenGATE.jar available -->
+	<target name="check-gg" unless="gg.exists">
+		<available property="gg.exists" file="../goldengate-editor/dist/GoldenGATE.jar"/>
+	</target>
+	<target name="compileClt" depends="check-gg" if="${gg.exists}" description="Compile GoldenGATE Editor plugin Java sources">
+		
+	    <!-- Compile Java classes as necessary -->
+	    <javac destdir="${build.home}/classes" includeantruntime="false" >
+	    	<src path="${src.home}" />
+    		<include name="**/goldenGateServer/dis/GoldenGateDisConstants.java" />
+    		<include name="**/goldenGateServer/dis/client/GoldenGateDisClient.java" />
+    		<include name="**/goldenGateServer/dis/client/GoldenGateDisClientAuth.java" />
+    		<include name="**/goldenGateServer/dio/client/PageImageViewer.java" />
+	        <classpath refid="compile.classpath" />
+	    </javac>
+	</target>
+	
+	<!-- Compile web frontend and modules -->
+	<target name="compileWeb" description="Compile GoldenGATE Server web front-end Java sources">
+		
+	    <!-- Compile Java classes as necessary -->
+	    <javac destdir="${build.home}/classes" includeantruntime="false" >
+	    	<src path="${src.home}" />
+    		<include name="**/goldenGateServer/dis/GoldenGateDisConstants.java" />
+    		<include name="**/goldenGateServer/dis/client/GoldenGateDisClient.java" />
+    		<include name="**/goldenGateServer/dis/client/GoldenGateDisClientAuth.java" />
+	   		<include name="**/goldenGateServer/dis/client/GoldenGateDisServlet.java" />
+	        <classpath refid="compile.classpath" />
+	    </javac>
+	</target>
+</project>
