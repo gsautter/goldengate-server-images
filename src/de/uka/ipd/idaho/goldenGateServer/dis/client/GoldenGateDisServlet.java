@@ -45,17 +45,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import de.uka.ipd.idaho.easyIO.settings.Settings;
 import de.uka.ipd.idaho.gamta.util.imaging.BoundingBox;
 import de.uka.ipd.idaho.gamta.util.imaging.PageImage;
 import de.uka.ipd.idaho.gamta.util.imaging.PageImageInputStream;
 import de.uka.ipd.idaho.gamta.util.imaging.PageImageSource;
 import de.uka.ipd.idaho.goldenGateServer.client.GgServerClientServlet;
-import de.uka.ipd.idaho.goldenGateServer.client.GgServerClientServlet.ReInitializableServlet;
 import de.uka.ipd.idaho.goldenGateServer.client.GgServerWebFrontendLogger;
 import de.uka.ipd.idaho.goldenGateServer.dis.GoldenGateDisConstants;
 
@@ -107,7 +106,7 @@ import de.uka.ipd.idaho.goldenGateServer.dis.GoldenGateDisConstants;
  * 
  * @author sautter
  */
-public class GoldenGateDisServlet extends GgServerClientServlet implements ReInitializableServlet, GoldenGateDisConstants, PageImageSource {
+public class GoldenGateDisServlet extends GgServerClientServlet implements GoldenGateDisConstants, PageImageSource {
 	private static final int DEFAULT_IMAGE_DPI = 96; // quarter of 96 dpi default screen resolution
 	private static final int DEFAULT_THUMBNAIL_DPI = 24;
 	private static final String THUMBNAIL_INFIX = ".thumb";
@@ -128,21 +127,23 @@ public class GoldenGateDisServlet extends GgServerClientServlet implements ReIni
 	private PageImage defaultThumbnail = null;
 	
 	/* (non-Javadoc)
-	 * @see de.uka.ipd.idaho.goldenGateServer.client.GgServerClientServlet#init(de.uka.ipd.idaho.easyIO.settings.Settings)
+	 * @see de.uka.ipd.idaho.goldenGateServer.client.GgServerClientServlet#doInit()
 	 */
-	protected void init(Settings config) {
+	protected void doInit() throws ServletException {
+		super.doInit();
+		
 		this.disClient = new GoldenGateDisClient(this.serverConnection);
 		this.discCacheFolder = new File(new File(this.webInfFolder, "caches"), "disData");
 		
 		PageImage.addPageImageSource(this);
-		
-		this.reInit(config);
 	}
 	
 	/* (non-Javadoc)
-	 * @see de.uka.ipd.idaho.goldenGateServer.client.GgServerClientServlet.ReInitializableServlet#reInit(de.uka.ipd.idaho.easyIO.settings.Settings)
+	 * @see de.uka.ipd.idaho.easyIO.web.HtmlServlet#reInit()
 	 */
-	public void reInit(Settings config) {
+	protected void reInit() throws ServletException {
+		super.reInit();
+		
 		try {
 			this.imageDpi = Integer.parseInt(config.getSetting("imageDpi", ("" + this.imageDpi)));
 		} catch (NumberFormatException nfe) {}
