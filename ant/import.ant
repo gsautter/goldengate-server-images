@@ -5,7 +5,7 @@
 -->
 
 <project name="import">
-	<target name="fetch" depends="fetch-su,fetch-hxu,fetch-gamta,fetch-eio,fetch-iclibs,fetch-ia,fetch-ocr,fetch-icepdf,fetch-pdf,fetch-gg,fetch-ggs,fetch-ggswf,fetch-srssp,fetch-uaa,fetch-exp,fetch-dioexp,fetch-authman" />
+	<target name="fetch" depends="fetch-su,fetch-hxu,fetch-gamta,fetch-eio,fetch-iclibs,fetch-ia,fetch-ocr,fetch-icepdf,fetch-pdf,fetch-gg,fetch-ggs,fetch-ggswf,fetch-srssp,fetch-uaa,fetch-dst,fetch-exp,fetch-dioexp,fetch-authman" />
 	
 	<target name="check-fetch-su" unless="su.exists">
 		<available property="su.exists" file="../idaho-core/dist/StringUtils.jar"/>
@@ -92,17 +92,24 @@
 	</target>
 	
 	<target name="check-fetch-exp" unless="exp.exists">
-		<available property="exp.exists" file="../goldengate-server/dist/Components/Bin/GgServerEXP.jar"/>
+		<available property="exp.exists" file="../goldengate-server-docs/dist/Components/GgServerEXP.jar"/>
 	</target>
 	<target name="fetch-exp" depends="check-fetch-exp" if="${exp.exists}">
-    	<copy file="../goldengate-server/dist/Components/Bin/GgServerEXP.jar" todir="${lib.home}" overwrite="true" verbose="false" />
+    	<copy file="../goldengate-server-docs/dist/Components/GgServerEXP.jar" todir="${lib.home}" overwrite="true" verbose="false" />
+	</target>
+	
+	<target name="check-fetch-dst" unless="dst.exists">
+		<available property="dst.exists" file="../goldengate-server-docs/dist/Components/Bin/GgServerDST.jar"/>
+	</target>
+	<target name="fetch-dst" depends="check-fetch-dst" if="${dst.exists}">
+    	<copy file="../goldengate-server-docs/dist/Components/Bin/GgServerDST.jar" todir="${lib.home}" overwrite="true" verbose="false" />
 	</target>
 	
 	<target name="check-fetch-dioexp" unless="dioexp.exists">
-		<available property="dioexp.exists" file="../goldengate-server/dist/Components/Bin/GgServerDioEXP.jar"/>
+		<available property="dioexp.exists" file="../goldengate-server-docs/dist/Components/Bin/GgServerDioEXP.jar"/>
 	</target>
 	<target name="fetch-dioexp" depends="check-fetch-dioexp" if="${dioexp.exists}">
-    	<copy file="../goldengate-server/dist/Components/Bin/GgServerDioEXP.jar" todir="${lib.home}" overwrite="true" verbose="false" />
+    	<copy file="../goldengate-server-docs/dist/Components/Bin/GgServerDioEXP.jar" todir="${lib.home}" overwrite="true" verbose="false" />
 	</target>
 	
 	<target name="check-fetch-srssp" unless="srssp.exists">

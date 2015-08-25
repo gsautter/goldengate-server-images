@@ -145,10 +145,10 @@ public class GoldenGateDisServlet extends GgServerClientServlet implements Golde
 		super.reInit();
 		
 		try {
-			this.imageDpi = Integer.parseInt(config.getSetting("imageDpi", ("" + this.imageDpi)));
+			this.imageDpi = Integer.parseInt(this.getSetting("imageDpi", ("" + this.imageDpi)));
 		} catch (NumberFormatException nfe) {}
 		
-		String defaultImageName = config.getSetting("defaultImage");
+		String defaultImageName = this.getSetting("defaultImage");
 		if (defaultImageName != null) try {
 			InputStream defaultImageIn = new FileInputStream(new File(this.dataFolder, defaultImageName));
 			this.defaultImage = new PageImage(PageImage.readImage(defaultImageIn), 1, this);
@@ -159,10 +159,10 @@ public class GoldenGateDisServlet extends GgServerClientServlet implements Golde
 		}
 		
 		try {
-			this.thumbnailDpi = Integer.parseInt(config.getSetting("thumbnailDpi", ("" + this.thumbnailDpi)));
+			this.thumbnailDpi = Integer.parseInt(this.getSetting("thumbnailDpi", ("" + this.thumbnailDpi)));
 		} catch (NumberFormatException nfe) {}
 		
-		String defaultThumbnailName = config.getSetting("defaultThumbnail");
+		String defaultThumbnailName = this.getSetting("defaultThumbnail");
 		if (defaultThumbnailName != null) try {
 			InputStream defaultThumbnailIn = new FileInputStream(new File(this.dataFolder, defaultThumbnailName));
 			this.defaultThumbnail = new PageImage(PageImage.readImage(defaultThumbnailIn), 1, this);
@@ -172,8 +172,8 @@ public class GoldenGateDisServlet extends GgServerClientServlet implements Golde
 			ioe.printStackTrace(System.out);
 		}
 		
-		this.useDiscCache = "true".equals(config.getSetting("useDiscCache", "true"));
-		this.discCacheSynchronized = "true".equals(config.getSetting("discCacheSynchronized", "false"));
+		this.useDiscCache = "true".equals(this.getSetting("useDiscCache", "true"));
+		this.discCacheSynchronized = "true".equals(this.getSetting("discCacheSynchronized", "false"));
 		if (this.useDiscCache) {
 			this.disClient.setCacheFolder(this.discCacheFolder);
 			this.disClient.setCacheSynchronized(this.discCacheSynchronized);
@@ -181,9 +181,9 @@ public class GoldenGateDisServlet extends GgServerClientServlet implements Golde
 		else this.disClient.setCacheFolder(null);
 		
 		try {
-			this.memoryCacheSize = Integer.parseInt(config.getSetting("memoryCacheSize", ("" + this.memoryCacheSize)));
+			this.memoryCacheSize = Integer.parseInt(this.getSetting("memoryCacheSize", ("" + this.memoryCacheSize)));
 		} catch (NumberFormatException nfe) {}
-		this.memoryCacheSynchronized = "true".equals(config.getSetting("memoryCacheSynchronized", "false"));
+		this.memoryCacheSynchronized = "true".equals(this.getSetting("memoryCacheSynchronized", "false"));
 	}
 	
 	/* (non-Javadoc)

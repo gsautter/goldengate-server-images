@@ -29,15 +29,15 @@
 package de.uka.ipd.idaho.goldenGateServer.dis.client;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 import de.uka.ipd.idaho.gamta.util.imaging.PageImage;
 import de.uka.ipd.idaho.gamta.util.imaging.PageImageStore;
 import de.uka.ipd.idaho.goldenGateServer.client.ServerConnection.Connection;
 import de.uka.ipd.idaho.goldenGateServer.uaa.client.AuthenticatedClient;
-import de.uka.ipd.idaho.goldenGateServer.util.Base64OutputStream;
+import de.uka.ipd.idaho.goldenGateServer.util.BufferedLineInputStream;
+import de.uka.ipd.idaho.goldenGateServer.util.BufferedLineOutputStream;
+//import de.uka.ipd.idaho.goldenGateServer.util.Base64OutputStream;
 
 /**
  * Authenticated client for the GoldenGATE Document Image Server, providing both
@@ -67,28 +67,23 @@ public class GoldenGateDisClientAuth extends GoldenGateDisClient implements Page
 		Connection con = null;
 		try {
 			con = this.getConnection();
-			BufferedWriter bw = con.getWriter();
+			BufferedLineOutputStream blos = con.getOutputStream();
 			
 			//	indicate image upload coming
-			bw.write(STORE_IMAGE);
-			bw.newLine();
+			blos.writeLine(STORE_IMAGE);
 			
 			//	send authentication
-			bw.write(this.authClient.getSessionID());
-			bw.newLine();
+			blos.writeLine(this.authClient.getSessionID());
 			
 			//	send image name
-			bw.write(name);
-			bw.newLine();
+			blos.writeLine(name);
 			
 			//	send image
-			Base64OutputStream bos = new Base64OutputStream(bw);
-			pageImage.write(bos);
-			bos.close(false);
-			bw.flush();
+			pageImage.write(blos);
+			blos.flush();
 			
-			BufferedReader br = con.getReader();
-			String error = br.readLine();
+			BufferedLineInputStream blis = con.getInputStream();
+			String error = blis.readLine();
 			if (!STORE_IMAGE.equals(error))
 				throw new IOException(error);
 		}
@@ -97,6 +92,40 @@ public class GoldenGateDisClientAuth extends GoldenGateDisClient implements Page
 				con.close();
 		}
 	}
+//	public void storePageImage(String name, PageImage pageImage) throws IOException {
+//		Connection con = null;
+//		try {
+//			con = this.getConnection();
+//			BufferedWriter bw = con.getWriter();
+//			
+//			//	indicate image upload coming
+//			bw.write(STORE_IMAGE);
+//			bw.newLine();
+//			
+//			//	send authentication
+//			bw.write(this.authClient.getSessionID());
+//			bw.newLine();
+//			
+//			//	send image name
+//			bw.write(name);
+//			bw.newLine();
+//			
+//			//	send image
+//			Base64OutputStream bos = new Base64OutputStream(bw);
+//			pageImage.write(bos);
+//			bos.close(false);
+//			bw.flush();
+//			
+//			BufferedReader br = con.getReader();
+//			String error = br.readLine();
+//			if (!STORE_IMAGE.equals(error))
+//				throw new IOException(error);
+//		}
+//		finally {
+//			if (con != null)
+//				con.close();
+//		}
+//	}
 	
 	/* (non-Javadoc)
 	 * @see de.uka.ipd.idaho.gamta.util.imaging.PageImageStore#storePageImage(java.lang.String, java.awt.image.BufferedImage, int)

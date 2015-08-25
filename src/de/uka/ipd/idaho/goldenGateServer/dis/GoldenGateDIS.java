@@ -46,8 +46,10 @@ import de.uka.ipd.idaho.gamta.util.imaging.PageImageStore;
 import de.uka.ipd.idaho.goldenGateServer.AbstractGoldenGateServerComponent;
 import de.uka.ipd.idaho.goldenGateServer.GoldenGateServerComponentRegistry;
 import de.uka.ipd.idaho.goldenGateServer.uaa.UserAccessAuthority;
-import de.uka.ipd.idaho.goldenGateServer.util.Base64InputStream;
-import de.uka.ipd.idaho.goldenGateServer.util.Base64OutputStream;
+//import de.uka.ipd.idaho.goldenGateServer.util.Base64InputStream;
+//import de.uka.ipd.idaho.goldenGateServer.util.Base64OutputStream;
+import de.uka.ipd.idaho.goldenGateServer.util.BufferedLineInputStream;
+import de.uka.ipd.idaho.goldenGateServer.util.BufferedLineOutputStream;
 
 /**
  * The GoldenGATE Document Image Server implements a page image store inside
@@ -114,7 +116,7 @@ public class GoldenGateDIS extends AbstractGoldenGateServerComponent implements 
 			public String getActionCommand() {
 				return GET_IMAGE;
 			}
-			public void performActionNetwork(BufferedReader input, BufferedWriter output) throws IOException {
+			public void performActionNetwork(BufferedLineInputStream input, BufferedLineOutputStream output) throws IOException {
 				String imageId = input.readLine();
 				String docId = imageId.substring(0, imageId.lastIndexOf('.'));
 				int pageId = Integer.parseInt(imageId.substring(imageId.lastIndexOf('.') + 1));
@@ -125,27 +127,56 @@ public class GoldenGateDIS extends AbstractGoldenGateServerComponent implements 
 					imageIn = new FileInputStream(getDocumentPageImageFile(PageImage.getPageImageName(docId, pageId)));
 				}
 				catch (FileNotFoundException fnfe) {
-					output.write("Could not find or load image of page " + pageId + " in document " + docId);
-					output.newLine();
+					output.writeLine("Could not find or load image of page " + pageId + " in document " + docId);
 					return;
 				}
 				PageImageInputStream piis = new PageImageInputStream(imageIn, GoldenGateDIS.this);
 				
 				//	indicate image coming
-				output.write(GET_IMAGE);
-				output.newLine();
+				output.writeLine(GET_IMAGE);
 				
 				//	write image
-				PageImageOutputStream pios = new PageImageOutputStream(new Base64OutputStream(output), piis);
+				PageImageOutputStream pios = new PageImageOutputStream(output, piis);
 				byte[] buffer = new byte[1024];
 				for (int read; (read = piis.read(buffer, 0, buffer.length)) != -1;)
 					pios.write(buffer, 0, read);
 				pios.flush();
-				pios.close();
 				
 				//	clean up
 				imageIn.close();
 			}
+//			public void performActionNetwork(BufferedReader input, BufferedWriter output) throws IOException {
+//				String imageId = input.readLine();
+//				String docId = imageId.substring(0, imageId.lastIndexOf('.'));
+//				int pageId = Integer.parseInt(imageId.substring(imageId.lastIndexOf('.') + 1));
+//				
+//				//	get input stream
+//				InputStream imageIn;
+//				try {
+//					imageIn = new FileInputStream(getDocumentPageImageFile(PageImage.getPageImageName(docId, pageId)));
+//				}
+//				catch (FileNotFoundException fnfe) {
+//					output.write("Could not find or load image of page " + pageId + " in document " + docId);
+//					output.newLine();
+//					return;
+//				}
+//				PageImageInputStream piis = new PageImageInputStream(imageIn, GoldenGateDIS.this);
+//				
+//				//	indicate image coming
+//				output.write(GET_IMAGE);
+//				output.newLine();
+//				
+//				//	write image
+//				PageImageOutputStream pios = new PageImageOutputStream(new Base64OutputStream(output), piis);
+//				byte[] buffer = new byte[1024];
+//				for (int read; (read = piis.read(buffer, 0, buffer.length)) != -1;)
+//					pios.write(buffer, 0, read);
+//				pios.flush();
+//				pios.close();
+//				
+//				//	clean up
+//				imageIn.close();
+//			}
 		};
 		cal.add(ca);
 		
@@ -154,13 +185,12 @@ public class GoldenGateDIS extends AbstractGoldenGateServerComponent implements 
 			public String getActionCommand() {
 				return STORE_IMAGE;
 			}
-			public void performActionNetwork(BufferedReader input, BufferedWriter output) throws IOException {
+			public void performActionNetwork(BufferedLineInputStream input, BufferedLineOutputStream output) throws IOException {
 				
 				// check authentication
 				String sessionId = input.readLine();
 				if (!uaa.isValidSession(sessionId)) {
-					output.write("Invalid session (" + sessionId + ")");
-					output.newLine();
+					output.writeLine("Invalid session (" + sessionId + ")");
 					return;
 				}
 				
@@ -170,7 +200,7 @@ public class GoldenGateDIS extends AbstractGoldenGateServerComponent implements 
 				int pageId = Integer.parseInt(imageId.substring(imageId.lastIndexOf('.') + 1));
 				
 				//	get image
-				PageImageInputStream piis = new PageImageInputStream(new Base64InputStream(input), GoldenGateDIS.this);
+				PageImageInputStream piis = new PageImageInputStream(input, GoldenGateDIS.this);
 				PageImage pi = new PageImage(piis);
 				
 				//	store image
@@ -180,6 +210,32 @@ public class GoldenGateDIS extends AbstractGoldenGateServerComponent implements 
 				output.write(STORE_IMAGE);
 				output.flush();
 			}
+//			public void performActionNetwork(BufferedReader input, BufferedWriter output) throws IOException {
+//				
+//				// check authentication
+//				String sessionId = input.readLine();
+//				if (!uaa.isValidSession(sessionId)) {
+//					output.write("Invalid session (" + sessionId + ")");
+//					output.newLine();
+//					return;
+//				}
+//				
+//				//	get image meta data
+//				String imageId = input.readLine();
+//				String docId = imageId.substring(0, imageId.lastIndexOf('.'));
+//				int pageId = Integer.parseInt(imageId.substring(imageId.lastIndexOf('.') + 1));
+//				
+//				//	get image
+//				PageImageInputStream piis = new PageImageInputStream(new Base64InputStream(input), GoldenGateDIS.this);
+//				PageImage pi = new PageImage(piis);
+//				
+//				//	store image
+//				storePageImage(docId, pageId, pi);
+//				
+//				//	indicate sucsess
+//				output.write(STORE_IMAGE);
+//				output.flush();
+//			}
 		};
 		cal.add(ca);
 		

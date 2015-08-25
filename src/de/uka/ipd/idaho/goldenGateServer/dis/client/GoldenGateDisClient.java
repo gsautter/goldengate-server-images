@@ -49,7 +49,9 @@ import de.uka.ipd.idaho.gamta.util.imaging.PageImageSource.AbstractPageImageSour
 import de.uka.ipd.idaho.goldenGateServer.client.ServerConnection;
 import de.uka.ipd.idaho.goldenGateServer.client.ServerConnection.Connection;
 import de.uka.ipd.idaho.goldenGateServer.dis.GoldenGateDisConstants;
-import de.uka.ipd.idaho.goldenGateServer.util.Base64InputStream;
+import de.uka.ipd.idaho.goldenGateServer.util.BufferedLineInputStream;
+import de.uka.ipd.idaho.goldenGateServer.util.BufferedLineOutputStream;
+//import de.uka.ipd.idaho.goldenGateServer.util.Base64InputStream;
 
 /**
  * Basic client for the GoldenGATE Document Image Server, providing only reading
@@ -250,18 +252,16 @@ public class GoldenGateDisClient extends AbstractPageImageSource implements Gold
 	
 	private InputStream getPageImageInputStream(String name) throws IOException {
 		final Connection con = this.getConnection();
-		BufferedWriter bw = con.getWriter();
+		BufferedLineOutputStream blos = con.getOutputStream();
 		
-		bw.write(GET_IMAGE);
-		bw.newLine();
-		bw.write(name);
-		bw.newLine();
-		bw.flush();
+		blos.writeLine(GET_IMAGE);
+		blos.writeLine(name);
+		blos.flush();
 		
-		BufferedReader br = con.getReader();
-		String error = br.readLine();
+		BufferedLineInputStream blis = con.getInputStream();
+		String error = blis.readLine();
 		if (GET_IMAGE.equals(error))
-			return new FilterInputStream(new Base64InputStream(br)) {
+			return new FilterInputStream(blis) {
 				private Connection connection = con;
 				public void close() throws IOException {
 					this.connection.close();
@@ -278,6 +278,36 @@ public class GoldenGateDisClient extends AbstractPageImageSource implements Gold
 			throw new IOException(error);
 		}
 	}
+//	private InputStream getPageImageInputStream(String name) throws IOException {
+//		final Connection con = this.getConnection();
+//		BufferedWriter bw = con.getWriter();
+//		
+//		bw.write(GET_IMAGE);
+//		bw.newLine();
+//		bw.write(name);
+//		bw.newLine();
+//		bw.flush();
+//		
+//		BufferedReader br = con.getReader();
+//		String error = br.readLine();
+//		if (GET_IMAGE.equals(error))
+//			return new FilterInputStream(new Base64InputStream(br)) {
+//				private Connection connection = con;
+//				public void close() throws IOException {
+//					this.connection.close();
+//					this.connection = null;
+//				}
+//				protected void finalize() throws Throwable {
+//					if (this.connection != null)
+//						this.connection.close();
+//				}
+//			};
+//		
+//		else {
+//			con.close();
+//			throw new IOException(error);
+//		}
+//	}
 	
 	private File getPageImageCacheFile(String name) {
 		File pageImageFolder = new File(this.cacheFolder, name);
